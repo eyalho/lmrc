@@ -53,7 +53,7 @@ def create_a_submission_file(data, predict_func, save_path, exp=None):
         exp.log_table(filename=submission_file_path_with_true)
 
 
-def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
+def load_and_evaluate_a_submission_file(submission_file_path, exp=None, verbose=False):
     submission_file_name = Path(submission_file_path).name
     eval_data = pd.read_csv(submission_file_path)
     # set 2 first columns to tweet_id and location
@@ -70,7 +70,8 @@ def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
     eval_data['location_error'] = eval_data.apply(
         lambda row: classify_location_error(row['location_true'], row['location']), axis=1)
 
-    print_error_analysis(eval_data, by_location_errors=True)
+    if verbose:
+        print_error_analysis(eval_data, by_location_errors=True)
 
     eval_path = f'out/{submission_file_name}_eval.csv'
     eval_data[["tweet_id", "wer_score", "location", "location_true", "location_error", "text"]].to_csv(eval_path,

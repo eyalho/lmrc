@@ -49,7 +49,7 @@ def predefined_locations_predict(text, threshold=5):
 
 
 if __name__ == "__main__":
-    print(f"{len(read_predefined_locations())} locations found.")
+    print(f"{len(read_predefined_locations(threshold=5))} locations found.")
     text = "Aftershocks expected in earthquake-hit areas within 24 hours: NDMA. #pakistan"
     print(f"{extract_ner_words(text, extract_predefined_locations(text))=}")
     text = "What is happening to the infrastructure in New England? It isnt global warming, its misappropriated funds being abused that shouldve been used maintaining their infrastructure that couldve protected them from floods! Like New Orleans. Their mayor went to ὄ7#Maryland #floods"
@@ -59,5 +59,3 @@ if __name__ == "__main__":
     text = 'RT @BJP4Andhra: Central assistance to Kerala Floods relief - proactive, rapid & multi-modal. #PMModiWithKeralam #KeralaFloods /'
     print(f"{extract_ner_words(text, extract_predefined_locations(text))=}")
     print(f"[{predefined_locations_predict(text, threshold=1)}], vs [Kerala]")
-
-
