@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
@@ -15,9 +17,8 @@ else:
     print('--------------------------------------------------')
 
 
-
-def simple_ner(text, model_name="rsuwaileh/IDRISI-LMR-EN-random-typeless"):
-    # model_name = "dslim/bert-base-NER"
+@lru_cache(maxsize=None)
+def func_ner_pipeline(model_name="dslim/bert-base-NER"):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForTokenClassification.from_pretrained(model_name).to(device)
     Aggregation_strategy = "average"  # "average"?
@@ -26,7 +27,11 @@ def simple_ner(text, model_name="rsuwaileh/IDRISI-LMR-EN-random-typeless"):
                             tokenizer=tokenizer,
                             aggregation_strategy=Aggregation_strategy,
                             device=device)
-    ner_results = ner_pipeline(text)
+    return ner_pipeline
+
+def simple_ner(text, model_name="rsuwaileh/IDRISI-LMR-EN-random-typeless"):
+    # model_name = "dslim/bert-base-NER"
+    ner_results = func_ner_pipeline(text)
     return  ner_results
 
 
