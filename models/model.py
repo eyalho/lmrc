@@ -3,7 +3,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
-from models.utils import capitalize_hashtag_words, extract_ner_words
+from models.utils import capitalize_hashtag_words, extract_ner_names
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -49,7 +49,7 @@ def extract_locations_text(text, score_treshold=LOC_SCORE_TRESHOLD):
         new_text = capitalize_hashtag_words(text)
         ner_results = ner_pipeline(new_text)
         print(f"{ner_results=}, {new_text=} {text=}")
-        hastag_locations = extract_ner_words(text, ner_results, only_locations=True)
+        hastag_locations = extract_ner_names(text, ner_results, only_locations=True)
         if hastag_locations:
             print(f"capitalize_hashtag_words: {hastag_locations}")
             return hastag_locations

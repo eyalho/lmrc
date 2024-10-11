@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-from models.utils import extract_ner_words, fix_locations
+from models.utils import extract_ner_names, fix_locations
 
 
 @lru_cache(maxsize=None)
@@ -36,14 +36,12 @@ def extract_predefined_locations(text, threshold=5):
     return extracted_ner_output
 
 
-
-
-
-
+def extract_predefined_locations_v2(text, threshold=5):
+    pass
 
 
 def predefined_locations_predict(text, threshold=5):
-    locations_list = extract_ner_words(text, extract_predefined_locations(text, threshold=threshold))
+    locations_list = extract_ner_names(text, extract_predefined_locations(text, threshold=threshold))
     locations_list = sorted(set(locations_list))
     return fix_locations(locations_list, text)
 
@@ -51,11 +49,11 @@ def predefined_locations_predict(text, threshold=5):
 if __name__ == "__main__":
     print(f"{len(read_predefined_locations(threshold=5))} locations found.")
     text = "Aftershocks expected in earthquake-hit areas within 24 hours: NDMA. #pakistan"
-    print(f"{extract_ner_words(text, extract_predefined_locations(text))=}")
+    print(f"{extract_ner_names(text, extract_predefined_locations(text))=}")
     text = "What is happening to the infrastructure in New England? It isnt global warming, its misappropriated funds being abused that shouldve been used maintaining their infrastructure that couldve protected them from floods! Like New Orleans. Their mayor went to ὄ7#Maryland #floods"
-    print(f"{extract_ner_words(text, extract_predefined_locations(text))=}")
+    print(f"{extract_ner_names(text, extract_predefined_locations(text))=}")
     print(f"[{predefined_locations_predict(text, threshold=10)}], vs [New England New Orleans]")
 
     text = 'RT @BJP4Andhra: Central assistance to Kerala Floods relief - proactive, rapid & multi-modal. #PMModiWithKeralam #KeralaFloods /'
-    print(f"{extract_ner_words(text, extract_predefined_locations(text))=}")
+    print(f"{extract_ner_names(text, extract_predefined_locations(text))=}")
     print(f"[{predefined_locations_predict(text, threshold=1)}], vs [Kerala]")

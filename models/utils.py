@@ -23,24 +23,32 @@ def capitalize_hashtag_words(text):
     return " ".join(new_words)
 
 
-def extract_ner_words(text, ner_results, only_locations=True):
+def extract_ner_names(text, ner_results, only_locations=True, location_as_multiple_words=False) -> List[str]:
     # Create a list to hold the extracted words
     # This function is based on start, end positions of the words
     # So it catch the right form (capitalized or not) of the word
     extracted_words = []
+    # todo maybe here better to extract names and not words?
+    #  i.e. if "New Orleans" is in the text, it should be extracted as "New Orleans" and not "New" and "Orleans"
+    #  but if "New Orleans" is not in the text, then "New" and "Orleans" should be extracted
+    #  it can be implemented by checking if last_result['end'] + 1 == result['start']
+
+    if only_locations:
+        ner_results = [r for r in ner_results if 'LOC' in r['entity_group']]
+
+    # sort ner_results by start index
+    ner_results = sorted(ner_results, key=lambda x: x['start'])
 
     # Iterate through the NER results
-    for result in ner_results:
+    for i, result in enumerate(ner_results):
         start = result['start']
         end = result['end']
-        if only_locations:
-            if 'LOC' in result['entity_group']:
-                extracted_words.append(text[start:end])
-            else:
-                continue
-        else:
-            extracted_words.append(text[start:end])
-
+        if location_as_multiple_words:
+            if i < len(ner_results) - 1:
+                if end + 1 == ner_results[i + 1]['start']:
+                    ner_results[i + 1]['start'] = start
+                    continue
+        extracted_words.append(text[start:end])
     return extracted_words
 
 
@@ -59,15 +67,14 @@ def fix_locations(locations_list: List[str], text: str):
     sublocations_list = ['New', 'new', 'Ellicott']
     for location in locations_list:
         for sublocation in locations_list:
-            if sublocation in location and location != sublocation and sublocation:
+            if sublocation in location and location != sublocation:
                 if sublocation in sublocations_list:
                     locations_list.remove(sublocation)
                 else:
-                    try: #todo fix logic?
+                    try:  # todo fix logic?
                         locations_list.remove(location)  # remove the longer one
                     except ValueError:
                         pass
-
 
     if not locations_list:
         locations_list = ["Unknown"]  # assuming all texts have at least one location
@@ -101,8 +108,8 @@ if __name__ == "__main__":
     print(f"{text} -> {new_text}")
     ner_results = [{'entity_group': 'ORG', 'score': 0.6138262, 'word': 'NDMA', 'start': 62, 'end': 66},
                    {'entity_group': 'LOC', 'score': 0.99970454, 'word': 'Pakistan', 'start': 69, 'end': 77}]
-    print(f"{extract_ner_words(text, ner_results, only_locations=False)=}")
-    print(f"{extract_ner_words(text, ner_results, only_locations=True)=}")
-
+    print(f"{extract_ner_names(text, ner_results, only_locations=False)=}")
+    print(f"{extract_ner_names(text, ner_results, only_locations=True)=}")
+    assert extract_ner_names(text, ner_results, only_locations=True) == ['pakistan']
     print(f"{preprocess_text(text)=}")
     print(f'{" ".join(preprocess_text(text))=}')
