@@ -1,4 +1,4 @@
-import time
+import argparse
 
 import comet_ml
 
@@ -6,23 +6,29 @@ from load_data import load_official, load_labeled_test_data, load_and_evaluate_a
     create_a_submission_file
 from models.predefined_words import predefined_locations_predict
 
-EXP_NAME: str = "tmp123123"  # "predefined_locations_predict_v4_threshold=5"
-
-if EXP_NAME:
-    print(f"Experiment name: {EXP_NAME}")
-    time.sleep(3)  # time to cancel if no need to save results
-    disabled = False
-else:
-    print(f"comet_ml is disabled")
-    disabled = True
-exp = comet_ml.Experiment(project_name="lmrc",
-                          api_key="UfLYtYKuUTMlUsAzvWDbTT75k",
-                          disabled=disabled)
-exp.set_name(EXP_NAME)
-exp_name = exp.get_name()
-assert exp_name == EXP_NAME
-
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run the experiment")
+    parser.add_argument("--name", type=str, required=True, help="Experiment name")
+    parser.add_argument("--disable",dest='disable', default=False, action='store_true')
+                        # deafult=False, type=str, action=argparse.BooleanOptionalAction, required=False,                        help="Experiment name")
+    args = parser.parse_args()
+
+    exp_name = args.name
+    disabled = args.disable
+    print(f"{exp_name=}")
+    print(f"{disabled=}")
+
+    if disabled:
+        print(f"comet_ml is disabled")
+    else:
+        print(f"comet_ml is enabled with {exp_name=}")
+
+    exp = comet_ml.Experiment(project_name="lmrc",
+                              api_key="UfLYtYKuUTMlUsAzvWDbTT75k",
+                              disabled=disabled)
+    exp.set_name(exp_name)
+    exp_name = exp.get_name()
+
     ### load data
     official_test_data, official_training_data = load_official()
     labeled_test_data = load_labeled_test_data()
@@ -39,14 +45,13 @@ if __name__ == "__main__":
 
     ### Create a submission file (and enhanced file with true locations)
     submission_file_path = f'out/{exp_name}_submission.csv'
-    create_a_submission_file(official_test_data, predict, submission_file_path)
+    create_a_submission_file(official_test_data, predict, submission_file_path, exp)
 
     ### Eval base on true location test set
     load_and_evaluate_a_submission_file(submission_file_path, exp)
 
+    exp.end()
+
 # Some other Links:
 # Evalution with https://github.com/rsuwaileh/seqeval
 # Sklearn like model - https://sklearn-crfsuite.readthedocs.io/en/latest/tutorial.html
-
-
-exp.end()
