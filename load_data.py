@@ -61,6 +61,7 @@ def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
         print(f"Warnning {eval_data.columns}!=['tweet_id', 'location']")
 
     eval_data.columns = ['tweet_id', 'location'] + list(eval_data.columns)[2:]
+    eval_data = eval_data[['tweet_id', 'location']]
     eval_data = eval_data.copy().merge(load_labeled_test_data(), on=['tweet_id'], how='left')
     eval_data = eval_data[eval_data['location_true'].notna()]
     eval_data['wer_score'] = eval_data.apply(lambda row: calculate_wer(row), axis=1)
