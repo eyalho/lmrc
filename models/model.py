@@ -17,35 +17,28 @@ else:
     print('--------------------------------------------------')
 
 
-@lru_cache(maxsize=None)
-def func_ner_pipeline(model_name="dslim/bert-base-NER"):
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForTokenClassification.from_pretrained(model_name).to(device)
-    Aggregation_strategy = "average"  # "average"?
-    ner_pipeline = pipeline("ner",
-                            model=model,
-                            tokenizer=tokenizer,
-                            aggregation_strategy=Aggregation_strategy,
-                            device=device)
-    return ner_pipeline
+class NERPipeline:
+    def __init__(self, model_name="rsuwaileh/IDRISI-LMR-EN-random-typeless"):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForTokenClassification.from_pretrained(model_name).to(device)
+        self.Aggregation_strategy = "average"  # "average"?
+        self.ner_pipeline = pipeline("ner",
+                                     model=self.model,
+                                     tokenizer=self.tokenizer,
+                                     aggregation_strategy=self.Aggregation_strategy,
+                                     device=device)
 
-def simple_ner(text, model_name="rsuwaileh/IDRISI-LMR-EN-random-typeless"):
-    # model_name = "dslim/bert-base-NER"
-    ner_results = func_ner_pipeline(text)
-    return  ner_results
-
-
-def simple_ner_predict(text):
-    simple_ner_results = simple_ner(text)
-    locations_list = extract_ner_names(text, simple_ner_results)
-    locations_list = sorted(set(locations_list))
-    return fix_locations(locations_list, text)
+    def predict(self, text):
+        ner_results = self.ner_pipeline(text)
+        locations_list = extract_ner_names(text, ner_results)
+        locations_list = sorted(set(locations_list))
+        return fix_locations(locations_list, text)
 
 
 if __name__ == "__main__":
     example = "Aftershocks expected in earthquake-hit areas within 24 hours: NDMA. #pakistan"
     print(f"{example}")
-    print(f"{simple_ner(example)=}")
+    print(f"{NERPipeline().predict(example)=}")
 
     # def apply_ner_pipeline(extract_locations_func):
     #     data = {

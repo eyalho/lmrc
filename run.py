@@ -4,7 +4,7 @@ import comet_ml
 
 from load_data import load_official, load_labeled_test_data, load_and_evaluate_a_submission_file, \
     create_a_submission_file
-from models.model import simple_ner_predict
+from models.model import NERPipeline
 from models.predefined_words import predefined_locations_predict
 
 if __name__ == "__main__":
@@ -53,14 +53,11 @@ if __name__ == "__main__":
         return predefined_locations_predict(text, threshold=5)
 
 
-    def predict(text):
-        # simple ner
-        return simple_ner_predict(text)
-
-
+    ### Evaluate the predictor
+    ner = NERPipeline()
     ### Create a submission file (and enhanced file with true locations)
     submission_file_path = f'out/{exp_name}_submission.csv'
-    create_a_submission_file(official_test_data, predict, submission_file_path, exp)
+    create_a_submission_file(official_test_data, ner.predict, submission_file_path, exp)
 
     ### Eval base on true location test set
     load_and_evaluate_a_submission_file(submission_file_path, exp)
