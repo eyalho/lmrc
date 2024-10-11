@@ -1,16 +1,18 @@
 import os
+import time
 
 import comet_ml
 import pandas as pd
 
 from evalute import print_error_analysis, classify_location_error, calculate_wer
 from load_data import load_official, load_labeled_test_data
-from models.utils import extract_ner_words, extract_predefined_locations
+from models.predefined_words import predefined_locations_predict
 
-EXP_NAME: str = "predefined_locations_predict_v1"
+EXP_NAME: str = "predefined_locations_predict_v4_threshold=5"
 
 if EXP_NAME:
     print(f"Experiment name: {EXP_NAME}")
+    time.sleep(3)  # time to cancel if no need to save results
     disabled = False
 else:
     print(f"comet_ml is disabled")
@@ -34,25 +36,9 @@ if __name__ == "__main__":
 
     ### Choose a predictor
     # model which based only on known locations:
-    def predefined_locations_predict(text):
-        # Wrong example
-        # C2,C3
-        # England Maryland New Orleans,New England New Orleans
-        locations_list = extract_ner_words(text, extract_predefined_locations(text))
-        locations_list = sorted(set(locations_list))
-        # also if sublocation is in the list, remove it
-        for location in locations_list:
-            for sublocation in locations_list:
-                if sublocation in location and location != sublocation:
-                    locations_list.remove(sublocation)
-
-        if not locations_list:
-            locations_list = ["Unknown"]  # assuming all texts have at least one location
-        return " ".join(locations_list)
-
 
     ### Create a submission file
-    official_test_data['location'] = official_test_data['text'].apply(lambda x: predefined_locations_predict(x))
+    official_test_data['location'] = official_test_data['text'].apply(lambda x: predefined_locations_predict(x, threshold=5))
     submission_file_path = f'out/{exp_name}_submission.csv'
     os.makedirs(os.path.dirname(submission_file_path), exist_ok=True)
     official_test_data[["tweet_id", "location"]].to_csv(submission_file_path, index=False)
@@ -78,15 +64,14 @@ if __name__ == "__main__":
     print(f"Average WER: {average_test_wer}")
     exp.log_metric(name="test_wer", value=average_test_wer)
 
-    # left join eval_data and labeled_test_data on [tweet_id, text] and add column location_true from  labeled_test_data
-    print_error_analysis(eval_data)
-
     # apply classify_location_error on each row of eval_data and add column location_error
     eval_data['location_error'] = eval_data.apply(
         lambda row: classify_location_error(row['location_true'], row['location']), axis=1)
 
+    print_error_analysis(eval_data, by_location_errors=True)
+
     eval_path = f'out/{exp_name}_eval.csv'
-    eval_data[["tweet_id", "wer_score", "location", "location_true"]].to_csv(eval_path, index=False)
+    eval_data[["tweet_id", "wer_score", "location", "location_true", "location_error", "text"]].to_csv(eval_path, index=False)
     exp.log_table(filename=eval_path)
 
     error_analysis_path = f'out/{exp_name}_error_analysis.csv'

@@ -1,3 +1,17 @@
+import re
+from typing import List
+
+import nltk
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+
+# nltk.data.path.append('/usr/share/nltk_data/')
+# nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('wordnet')
+# nltk.download('punkt_tab')
+
+
 def capitalize_hashtag_words(text):
     words = text.split()
     new_words = []
@@ -30,21 +44,55 @@ def extract_ner_words(text, ner_results, only_locations=True):
     return extracted_words
 
 
-def extract_predefined_locations(text):
-    from models.predefined_words import PREDEFINED_LOCATIONS
-    extracted_ner_output = []
-    for predefined_location in PREDEFINED_LOCATIONS:
-        start_idx = text.find(predefined_location)
-        if start_idx != -1:
-            end_idx = start_idx + len(predefined_location)
-            extracted_ner_output.append({
-                'entity_group': 'LOC',
-                'score': 0.5,
-                'word': predefined_location,
-                'start': start_idx,
-                'end': end_idx
-            })
-    return extracted_ner_output
+def filter_locations_by_word(locations_list: List[str], text: str):
+    # # todo fix
+    # extract_ner_words(text, extract_predefined_locations(text))=['England', 'Maryland', 'New Orleans']
+    # [Unknown], vs [New England New Orleans]
+    text_words = preprocess_text(text)
+    locations_list = [location for location in locations_list if location.split(' ')[0] in text_words]
+    return locations_list
+
+
+def fix_locations(locations_list: List[str], text: str):
+    locations_list = filter_locations_by_word(locations_list, text)
+
+    sublocations_list = ['New', 'new', 'Ellicott']
+    for location in locations_list:
+        for sublocation in locations_list:
+            if sublocation in location and location != sublocation and sublocation:
+                if sublocation in sublocations_list:
+                    locations_list.remove(sublocation)
+                else:
+                    try: #todo fix logic?
+                        locations_list.remove(location)  # remove the longer one
+                    except ValueError:
+                        pass
+
+
+    if not locations_list:
+        locations_list = ["Unknown"]  # assuming all texts have at least one location
+    locations_list = sorted(set(locations_list))
+    return " ".join(locations_list)
+
+
+def preprocess_text(text) -> list[str]:
+    # Remove URLs
+    # text = re.sub(r'http\S+|www\S+|https\S+', '<URL>', text, flags=re.MULTILINE)
+    # # Remove user mentions
+    # text = re.sub(r'@\w+', '', text)
+    # # Remove special characters and numbers
+    text = re.sub(r'[^a-zA-Z0-9\s\./\-_]', '', text)
+
+    # Tokenize
+    words = word_tokenize(text)
+
+    # Remove stopwords
+    stop_words = set(stopwords.words('english'))
+    words = [word for word in words if word not in stop_words]
+    #     # Lemmatize
+    #     lemmatizer = WordNetLemmatizer()
+    #     tokens = [lemmatizer.lemmatize(token) for token in tokens]
+    return words
 
 
 if __name__ == "__main__":
@@ -55,4 +103,6 @@ if __name__ == "__main__":
                    {'entity_group': 'LOC', 'score': 0.99970454, 'word': 'Pakistan', 'start': 69, 'end': 77}]
     print(f"{extract_ner_words(text, ner_results, only_locations=False)=}")
     print(f"{extract_ner_words(text, ner_results, only_locations=True)=}")
-    print(f"{extract_ner_words(text, extract_predefined_locations(text))=}")
+
+    print(f"{preprocess_text(text)=}")
+    print(f"{" ".join(preprocess_text(text))=}")
