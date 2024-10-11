@@ -88,6 +88,7 @@ def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
 
     print("full_eval_path:", eval_path)
     print("error_analysis_path:", error_analysis_path)
+    print(f"Average WER: {average_test_wer}")
     return average_test_wer
 
 
