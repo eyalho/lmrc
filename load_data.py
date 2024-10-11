@@ -63,6 +63,9 @@ def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
     eval_data['wer_score'] = eval_data.apply(lambda row: calculate_wer(row), axis=1)
     # sum wer score and log it
     average_test_wer = eval_data['wer_score'].mean()
+    if exp:
+        exp.log_metric(name=f"test_wer", value=average_test_wer)
+
     print(f"Average WER: {average_test_wer}")
     eval_data['location_error'] = eval_data.apply(
         lambda row: classify_location_error(row['location_true'], row['location']), axis=1)
@@ -74,6 +77,7 @@ def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
                                                                                                        index=False)
     if exp:
         exp.log_table(filename=eval_path)
+
 
     error_analysis_path = f'out/{submission_file_name}_error_analysis.csv'
     error_analysis_data = eval_data['location_error'].value_counts()
