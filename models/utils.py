@@ -5,11 +5,11 @@ import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
-# nltk.data.path.append('/usr/share/nltk_data/')
-# nltk.download('punkt')
-# nltk.download('stopwords')
-# nltk.download('wordnet')
-# nltk.download('punkt_tab')
+nltk.data.path.append('/usr/share/nltk_data/')
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('punkt_tab')
 
 
 def capitalize_hashtag_words(text):
