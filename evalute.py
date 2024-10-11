@@ -52,17 +52,17 @@ def has_extraneous_info(pred_loc): # TODO
 def classify_location_error(true_loc, pred_loc):
     """Classify the type of error based on true and predicted locations."""
     if true_loc == pred_loc:
-        return "Correct"
+        return "correct"
     if no_predicted_location(true_loc, pred_loc):
-        return "No Location Found"
+        return "no_location_found"
     elif is_pred_subset_of_true(true_loc, pred_loc):
-        return "Correct but Incomplete Prediction"
+        return "subset_of_true"
     elif is_true_subset_of_pred(true_loc, pred_loc):
-        return "Contains True Location but Added More"
+        return "contains_true_but_not_equal"
     elif is_location_confusion(true_loc, pred_loc):
-        return "Location Confusion or Mismatch"
+        return "location_confusion"
     elif has_extraneous_info(pred_loc):
-        return "Extraneous Information in Prediction"
+        return "wrong_and_more_than_4_words"
     else:
         return "Unknown Error"
 
