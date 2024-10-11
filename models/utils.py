@@ -105,4 +105,4 @@ if __name__ == "__main__":
     print(f"{extract_ner_words(text, ner_results, only_locations=True)=}")
 
     print(f"{preprocess_text(text)=}")
-    print(f"{" ".join(preprocess_text(text))=}")
+    print(f'{" ".join(preprocess_text(text))=}')
