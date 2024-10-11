@@ -1,9 +1,8 @@
-import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
-from models.utils import capitalize_hashtag_words, extract_ner_names
+from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -15,74 +14,33 @@ else:
     print("HuggingFace models may run significantly slower on CPU.")
     print('--------------------------------------------------')
 
-model_name = "dslim/bert-base-NER"
-model_name = "rsuwaileh/IDRISI-LMR-EN-random-typeless"
-# Tokenizer
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-# Model
-model = AutoModelForTokenClassification.from_pretrained(model_name).to(device)
-
-# Aggregation_strategy
-Aggregation_strategy = "average"  # "average"?
-
-ner_pipeline = pipeline("ner",
-                        model=model,
-                        tokenizer=tokenizer,
-                        aggregation_strategy=Aggregation_strategy,
-                        device=device)
-
-LOC_SCORE_TRESHOLD = 0.3
-NAMES_LOW_SCORE = 0.7
 
 
-def extract_locations_text(text, score_treshold=LOC_SCORE_TRESHOLD):
+def simple_ner(text, model_name="rsuwaileh/IDRISI-LMR-EN-random-typeless"):
+    # model_name = "dslim/bert-base-NER"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForTokenClassification.from_pretrained(model_name).to(device)
+    Aggregation_strategy = "average"  # "average"?
+    ner_pipeline = pipeline("ner",
+                            model=model,
+                            tokenizer=tokenizer,
+                            aggregation_strategy=Aggregation_strategy,
+                            device=device)
     ner_results = ner_pipeline(text)
-    locations = [entity['word'] for entity in ner_results if
-                 'LOC' in entity['entity_group']
-                 and entity['score'] > score_treshold]
-
-    if not locations:
-        print(f"\n----\nwarning: no location in {text}\n{ner_results=}")
-
-        # hastag_locations
-        new_text = capitalize_hashtag_words(text)
-        ner_results = ner_pipeline(new_text)
-        print(f"{ner_results=}, {new_text=} {text=}")
-        hastag_locations = extract_ner_names(text, ner_results, only_locations=True)
-        if hastag_locations:
-            print(f"capitalize_hashtag_words: {hastag_locations}")
-            return hastag_locations
-
-        # locations_low_score
-        locations_low_score = [entity['word'] for entity in ner_results if
-                               'LOC' in entity['entity_group']
-                               and entity['score'] <= score_treshold]
-        if locations_low_score:
-            print(f"return:{locations_low_score=}")
-            return locations_low_score
-
-        # names_low_score_not_locations
-        names_low_score_not_locations = [entity['word'] for entity in ner_results if
-                                         entity['score'] < NAMES_LOW_SCORE]
-        if names_low_score_not_locations:
-            print(f"return:{names_low_score_not_locations=}")
-            return names_low_score_not_locations
-
-    return sorted(set(locations))
+    return  ner_results
 
 
-
+def simple_ner_predict(text):
+    simple_ner_results = simple_ner(text)
+    locations_list = extract_ner_names(text, simple_ner_results)
+    locations_list = sorted(set(locations_list))
+    return fix_locations(locations_list, text)
 
 
 if __name__ == "__main__":
     example = "Aftershocks expected in earthquake-hit areas within 24 hours: NDMA. #pakistan"
-    extract_locations_text(example)
     print(f"{example}")
-
-
-
-
+    print(f"{simple_ner(example)=}")
 
     # def apply_ner_pipeline(extract_locations_func):
     #     data = {

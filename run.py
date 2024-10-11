@@ -4,12 +4,13 @@ import comet_ml
 
 from load_data import load_official, load_labeled_test_data, load_and_evaluate_a_submission_file, \
     create_a_submission_file
+from models.model import simple_ner_predict
 from models.predefined_words import predefined_locations_predict
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the experiment")
     parser.add_argument("--name", type=str, required=True, help="Experiment name")
-    parser.add_argument("--disable",dest='disable', default=False, action='store_true')
+    parser.add_argument("--disable", dest='disable', default=False, action='store_true')
     parser.add_argument("--eval_path", type=str, required=False, help="Experiment name")
 
     args = parser.parse_args()
@@ -31,14 +32,12 @@ if __name__ == "__main__":
     exp.set_name(exp_name)
     exp_name = exp.get_name()
 
-
     if eval_submission_file_path:
         # Only evaluate the submission file
         load_and_evaluate_a_submission_file(eval_submission_file_path, exp)
         print("Finish evaluation")
         exp.end()
         exit(0)
-
 
     ### load data
     official_test_data, official_training_data = load_official()
@@ -52,6 +51,11 @@ if __name__ == "__main__":
     def predict(text):
         # model which based only on known locations
         return predefined_locations_predict(text, threshold=5)
+
+
+    def predict(text):
+        # simple ner
+        return simple_ner_predict(text)
 
 
     ### Create a submission file (and enhanced file with true locations)

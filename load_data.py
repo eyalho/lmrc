@@ -3,6 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
+from tqdm import tqdm
 
 from evalute import calculate_wer, classify_location_error, print_error_analysis
 
@@ -34,6 +35,7 @@ def create_a_submission_file(data, predict_func, save_path, exp=None):
     print(f"shape of test_data: {data.shape}")
 
     data['location'] = data['text'].apply(lambda x: predict_func(x))
+    data['location'] = data['text'].apply(lambda x: predict_func(x), tqdm.pandas())
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     data = data[["tweet_id", "location"]]
     data.to_csv(save_path, index=False)
