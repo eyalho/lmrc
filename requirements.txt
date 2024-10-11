@@ -1,3 +1,4 @@
 emoji==0.6.0
 comet_ml
 datasets
+jiwer

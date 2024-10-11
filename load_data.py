@@ -7,6 +7,11 @@ import pandas as pd
 from evalute import calculate_wer, classify_location_error, print_error_analysis
 
 dataset_folder = "datasets"
+if not os.path.exists(dataset_folder):
+    for alternative in ["zindi/datasets", "lmrc/datasets", "../datasets"]:
+        if os.path.exists(alternative):
+            dataset_folder = alternative
+            break
 
 
 def load_official():
@@ -46,6 +51,7 @@ def create_a_submission_file(data, predict_func, save_path, exp=None):
     print(f"submission_file_path_with_true: {submission_file_path_with_true}")
     if exp:
         exp.log_table(filename=submission_file_path_with_true)
+
 
 def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
     submission_file_name = Path(submission_file_path).name

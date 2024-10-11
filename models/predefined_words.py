@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import List
+from pathlib import Path
 
 from models.utils import extract_ner_words, fix_locations
 
@@ -12,11 +12,10 @@ def _read_locations(file_path, threshold):
     return {row['location'] for _, row in df.iterrows() if row['count'] > threshold}
 
 
-def read_predefined_locations(file_path='datasets/location_counts.csv', threshold=5):
-    try:
-        locations = _read_locations(file_path, threshold)
-    except FileNotFoundError:
-        locations = _read_locations("../" + file_path, threshold)
+def read_predefined_locations(threshold=5):
+    # get path of current file
+    file_path = str(Path(__file__).parent.parent / 'datasets/location_counts.csv')
+    locations = _read_locations(file_path, threshold)
     return locations
 
 
