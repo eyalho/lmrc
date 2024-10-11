@@ -57,10 +57,10 @@ def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
     submission_file_name = Path(submission_file_path).name
     eval_data = pd.read_csv(submission_file_path)
     # set 2 first columns to tweet_id and location
-    if list(eval_data.columns) != ['tweet_id', 'location']:
+    if ['tweet_id', 'location'] not in list(eval_data.columns):
         print(f"Warnning {eval_data.columns}!=['tweet_id', 'location']")
 
-    eval_data.columns = ['tweet_id', 'location']
+    eval_data.columns = ['tweet_id', 'location'] + list(eval_data.columns)[2:]
     eval_data = eval_data.copy().merge(load_labeled_test_data(), on=['tweet_id'], how='left')
     eval_data = eval_data[eval_data['location_true'].notna()]
     eval_data['wer_score'] = eval_data.apply(lambda row: calculate_wer(row), axis=1)
