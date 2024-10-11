@@ -86,6 +86,8 @@ def load_and_evaluate_a_submission_file(submission_file_path, exp=None):
         if exp:
             exp.log_metric(name=f"error_{error_type}", value=count)
 
+    print("full_eval_path:", eval_path)
+    print("error_analysis_path:", error_analysis_path)
     return average_test_wer
 
 

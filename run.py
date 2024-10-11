@@ -10,11 +10,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the experiment")
     parser.add_argument("--name", type=str, required=True, help="Experiment name")
     parser.add_argument("--disable",dest='disable', default=False, action='store_true')
-                        # deafult=False, type=str, action=argparse.BooleanOptionalAction, required=False,                        help="Experiment name")
+    parser.add_argument("--eval_path", type=str, required=False, help="Experiment name")
+
     args = parser.parse_args()
 
     exp_name = args.name
     disabled = args.disable
+    eval_submission_file_path = args.eval_path
     print(f"{exp_name=}")
     print(f"{disabled=}")
 
@@ -28,6 +30,15 @@ if __name__ == "__main__":
                               disabled=disabled)
     exp.set_name(exp_name)
     exp_name = exp.get_name()
+
+
+    if eval_submission_file_path:
+        # Only evaluate the submission file
+        load_and_evaluate_a_submission_file(eval_submission_file_path, exp)
+        print("Finish evaluation")
+        exp.end()
+        exit(0)
+
 
     ### load data
     official_test_data, official_training_data = load_official()
