@@ -60,7 +60,6 @@ class NERPipeline:
         if not locations_list and retry_on_fail:
             # text = text.replace('-', ' ').replace('/', ' ')
             locations_list = predefined_locations_predict(text, threshold=0)
-            print(locations_list)
             return locations_list
             # return locations_list
             # ner_results = self.ner_pipeline2(text)
