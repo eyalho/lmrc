@@ -57,7 +57,7 @@ def extract_ner_names(text, ner_results, only_locations=False, merge_locations=F
         start = result['start']
         end = result['end']
         if merge_locations:
-            if i < len(ner_results) - 1 and result['']:
+            if i < len(ner_results) - 1:
                 if end + 1 == ner_results[i + 1]['start'] and result['entity'] not in ['L-LOC', 'U-LOC']:
                     ner_results[i + 1]['start'] = start
                     continue
