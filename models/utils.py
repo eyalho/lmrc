@@ -25,7 +25,7 @@ def capitalize_hashtag_words(text):
     return " ".join(new_words)
 
 
-def extract_ner_names(text, ner_results, only_locations=True, location_as_multiple_words=False) -> List[str]:
+def extract_ner_names(text, ner_results, only_locations=True, merge_locations=False) -> List[str]:
     # ner_results = [{'entity_group': '*-LOC', 'score': 0.6138262, 'word': 'NDMA', 'start': 62, 'end': 66},..]
 
     # Create a list to hold the extracted words
@@ -43,7 +43,7 @@ def extract_ner_names(text, ner_results, only_locations=True, location_as_multip
     for i, result in enumerate(ner_results):
         start = result['start']
         end = result['end']
-        if location_as_multiple_words:
+        if merge_locations:
             if i < len(ner_results) - 1:
                 if end + 2 == ner_results[i + 1]['start']:
                     ner_results[i + 1]['start'] = start

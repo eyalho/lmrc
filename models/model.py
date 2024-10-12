@@ -39,7 +39,7 @@ class NERPipeline:
     def predict(self, text):
         ner_results = self.ner_pipeline(text)
         locations_list = extract_ner_names(text, ner_results, only_locations=True,
-                                           location_as_multiple_words=self.config.get('location_as_multiple_words'))
+                                           merge_locations=self.config.get('merge_locations'))
         locations_list = sorted(set(locations_list))
         if self.config.get('fix_locations'):
             locations_list = fix_locations(locations_list, text)
