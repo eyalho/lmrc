@@ -65,7 +65,7 @@ def has_extraneous_info(pred_loc):  # TODO
 
 
 # Error classification
-def classify_location_error(true_loc, pred_loc):
+def classify_location_error(true_loc:str, pred_loc:str):
     """Classify the type of error based on true and predicted locations."""
     if true_loc == pred_loc:
         return "correct"

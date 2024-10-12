@@ -79,7 +79,7 @@ def fix_locations(locations_list: List[str], text: str):
                         pass
 
     if not locations_list:
-        locations_list = ["Unknown"]  # assuming all texts have at least one location
+        locations_list = ["no_locations_found"]  # assuming all texts have at least one location
     locations_list = sorted(set(locations_list))
     return " ".join(locations_list)
 
