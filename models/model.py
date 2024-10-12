@@ -48,7 +48,7 @@ class NERPipeline:
         return locations_list
 
     def predict(self, text):
-        original_text = text.copy()
+        original_text = text
         process_text = self.preprocess(text)
         ner_results = self.ner_pipeline(process_text)
         return self.postprocess(text, ner_results)
