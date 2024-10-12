@@ -32,6 +32,7 @@ def print_error_analysis(val_df, by_location_errors=False):
         _print_error_analysis(val_df[val_df['location_error'] == error_type].sample(frac=1))
     print('\n')
 
+
 # Categorizing functions
 def no_predicted_location(true_loc, pred_loc):
     """Check if no location was predicted."""
@@ -52,6 +53,13 @@ def is_true_subset_of_pred(true_loc, pred_loc):
     return true_parts.issubset(pred_parts)
 
 
+def is_location_order_problem(true_loc, pred_loc):
+    """Check if the prediction and true location have common parts but are not exactly the same."""
+    true_parts = set(true_loc.split())
+    pred_parts = set(pred_loc.split())
+    return true_parts == pred_parts and true_loc != pred_loc
+
+
 def is_location_confusion(true_loc, pred_loc):
     """Check if the prediction and true location have common parts but are not exactly the same."""
     true_parts = set(true_loc.split())
@@ -65,12 +73,14 @@ def has_extraneous_info(pred_loc):  # TODO
 
 
 # Error classification
-def classify_location_error(true_loc:str, pred_loc:str):
+def classify_location_error(true_loc: str, pred_loc: str):
     """Classify the type of error based on true and predicted locations."""
     if true_loc == pred_loc:
         return "correct"
     if no_predicted_location(true_loc, pred_loc):
         return "no_location_found"
+    if is_location_order_problem(true_loc, pred_loc):
+        return "location_order_problem"
     elif is_pred_subset_of_true(true_loc, pred_loc):
         return "subset_of_true"
     elif is_true_subset_of_pred(true_loc, pred_loc):
