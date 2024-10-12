@@ -1,9 +1,7 @@
-from typing import re
-
 import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
-
+import re
 from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations, capitalize_known_words
 
 if torch.cuda.is_available():
