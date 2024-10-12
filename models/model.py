@@ -56,7 +56,7 @@ class NERPipeline:
             # text = text.replace('-', ' ').replace('/', ' ')
             ner_results = self.ner_pipeline2(text)
             print(f"no_locations_found: {text}")
-            locations_list = extract_ner_names(text, ner_results, only_locations=False,
+            locations_list = extract_ner_names(text, ner_results, only_locations=True,
                                                merge_locations=self.config.get('merge_locations'))
 
         locations_list = sorted(set(locations_list))
