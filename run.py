@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument("--merge_locations", dest='merge_locations', default=False, action='store_true')
     parser.add_argument("--fix_locations", dest='fix_locations', default=False, action='store_true')
     parser.add_argument("--capitalize_known_words", dest='capitalize_known_words', default=False, action='store_true')
+    #parser.add_argument("--post_process_blacklist", dest='post_process_blacklist', default=False, action='store_true')
 
 
     args = parser.parse_args()

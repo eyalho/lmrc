@@ -27,6 +27,7 @@ class NERPipeline:
                                      tokenizer=self.tokenizer,
                                      aggregation_strategy=self.Aggregation_strategy,
                                      device=device)
+        #self.post_blacklist_names = load_post_blacklist_names()
 
     def preprocess(self, text):
         if self.config.get('capitalize_hashtag'):
@@ -36,14 +37,18 @@ class NERPipeline:
             text = capitalize_known_words(text)
         return text
 
-    def predict(self, text):
-        ner_results = self.ner_pipeline(text)
+    def postprocess(self, text, ner_results):
         locations_list = extract_ner_names(text, ner_results, only_locations=True,
                                            merge_locations=self.config.get('merge_locations'))
         locations_list = sorted(set(locations_list))
         if self.config.get('fix_locations'):
             locations_list = fix_locations(locations_list, text)
         return locations_list
+
+    def predict(self, text):
+        ner_results = self.ner_pipeline(text)
+        return self.postprocess(text, ner_results)
+
 
 
 if __name__ == "__main__":
