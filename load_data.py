@@ -33,8 +33,9 @@ def load_labeled_test_data():
 
 def create_a_submission_file(data, predict_func, save_path, exp=None):
     print(f"shape of test_data: {data.shape}")
+    tqdm.pandas()  # Enables progress bar for pandas apply
 
-    data['location'] = data['text'].apply(lambda x: predict_func(x), tqdm.pandas())
+    data['location'] = data['text'].astype(str).progress_apply(lambda x: predict_func(x))
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     data = data[["tweet_id", "location"]]
     data.to_csv(save_path, index=False)
