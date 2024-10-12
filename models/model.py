@@ -1,3 +1,5 @@
+from typing import re
+
 import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
@@ -29,8 +31,12 @@ class NERPipeline:
                                      device=device)
         # self.post_blacklist_names = load_post_blacklist_names()
 
-    def preprocess(self, text):
+    def preprocess_on_second_try(self, text):
         text = text.replace('-', ' ').replace('/', ' ')
+        return text
+
+    def preprocess(self, text):
+        text = re.sub(r'[^a-zA-Z0-9\s\./\-_]', '', text)
 
         if self.config.get('capitalize_hashtag'):
             text = capitalize_hashtag_words(text)
