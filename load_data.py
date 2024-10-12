@@ -14,7 +14,7 @@ if not os.path.exists(dataset_folder):
             dataset_folder = alternative
             break
 
-
+@lru_cache(maxsize=None)
 def load_official():
     official_training_data = pd.read_csv(f"{dataset_folder}/Train_1.csv")
     official_training_data = official_training_data[official_training_data['text'].notna()]

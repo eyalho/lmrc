@@ -2,6 +2,8 @@ import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 import re
+
+from models.predefined_words import predefined_locations_predict
 from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations, capitalize_known_words
 
 if torch.cuda.is_available():
@@ -54,10 +56,11 @@ class NERPipeline:
                                            merge_locations=self.config.get('merge_locations'))
         if not locations_list and retry_on_fail:
             # text = text.replace('-', ' ').replace('/', ' ')
-            ner_results = self.ner_pipeline2(text)
-            print(f"no_locations_found: {text}")
-            locations_list = extract_ner_names(text, ner_results, only_locations=True,
-                                               merge_locations=self.config.get('merge_locations'))
+            locations_list = predefined_locations_predict(text, threshold=1)
+            # ner_results = self.ner_pipeline2(text)
+            # locations_list = extract_ner_names(text, ner_results, only_locations=True,
+            #                                    merge_locations=self.config.get('merge_locations'))
+
 
         locations_list = sorted(set(locations_list))
         if self.config.get('fix_locations'):

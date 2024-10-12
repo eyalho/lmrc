@@ -1,6 +1,7 @@
+from collections import Counter
 from functools import lru_cache
-from pathlib import Path
 
+from load_data import load_official
 from models.utils import extract_ner_names, fix_locations
 
 
@@ -13,9 +14,8 @@ def _read_locations(file_path, threshold):
 
 
 def read_predefined_locations(threshold=5):
-    # get path of current file
-    file_path = str(Path(__file__).parent.parent / 'datasets/location_counts.csv')
-    locations = _read_locations(file_path, threshold)
+    C = Counter(load_official()[1]['location'].values)
+    locations = {c for c in C if C[c] > threshold}
     return locations
 
 
@@ -34,10 +34,6 @@ def extract_predefined_locations(text, threshold=5):
                 'end': end_idx
             })
     return extracted_ner_output
-
-
-def extract_predefined_locations_v2(text, threshold=5):
-    pass
 
 
 def predefined_locations_predict(text, threshold=5):
