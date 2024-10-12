@@ -49,6 +49,9 @@ def extract_ner_names(text, ner_results, only_locations=True, merge_locations=Fa
                     ner_results[i + 1]['start'] = start
                     continue
         extracted_words.append(text[start:end])
+
+    if not only_locations:
+        print(f"{ner_results=}")
     return extracted_words
 
 
