@@ -34,6 +34,7 @@ def extract_predefined_locations(text, threshold=5):
                 'start': start_idx,
                 'end': end_idx
             })
+    print(f"{extracted_ner_output=}")
     return extracted_ner_output
 
 
