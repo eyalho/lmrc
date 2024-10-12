@@ -34,7 +34,6 @@ class NERPipeline:
         return text
 
     def preprocess(self, text):
-        text = re.sub(r'[^a-zA-Z0-9\s\./\-_]', '', text)
 
         if self.config.get('capitalize_hashtag'):
             text = capitalize_hashtag_words(text)
