@@ -52,6 +52,8 @@ class NERPipeline:
         return text
 
     def postprocess(self, text, ner_results, retry_on_fail=True):
+        text = re.sub(r"\b([A-Z][a-zA-Z]*)'s\b", r"\1", text)
+
         locations_list = extract_ner_names(text, ner_results, only_locations=True,
                                            merge_locations=self.config.get('merge_locations'))
         if not locations_list and retry_on_fail:
