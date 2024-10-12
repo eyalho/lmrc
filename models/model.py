@@ -4,7 +4,8 @@ from transformers import pipeline
 import re
 
 from models.predefined_words import predefined_locations_predict
-from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations, capitalize_known_words
+from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations, capitalize_known_words, \
+    remove_hashtag
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -43,9 +44,11 @@ class NERPipeline:
         # self.post_blacklist_names = load_post_blacklist_names()
 
     def preprocess(self, text):
-        text = re.sub(r"\b([A-Z][a-zA-Z]*)'s\b", r"\1", text)
-        text = re.sub(r"\b([A-Z][a-zA-Z]*)’s\b", r"\1", text)
+        text = re.sub(r"\b([A-Z][a-zA-Z]*)'s\b", r"\1 ", text)
+        text = re.sub(r"\b([A-Z][a-zA-Z]*)’s\b", r"\1 ", text)
         text = re.sub(r"\b([A-Z][a-zA-Z]*)-\b", r"\1 ", text)
+
+        text = remove_hashtag(text)
 
         if self.config.get('capitalize_hashtag'):
             text = capitalize_hashtag_words(text)
@@ -58,7 +61,7 @@ class NERPipeline:
         locations_list = extract_ner_names(text, ner_results, only_locations=True,
                                            merge_locations=self.config.get('merge_locations'))
         if not locations_list and retry_on_fail:
-            # text = text.replace('-', ' ').replace('/', ' ')
+            text = text.replace('-', ' ').replace('/', ' ')
             locations_list = predefined_locations_predict(text, threshold=0)
             return locations_list
             # return locations_list

@@ -24,6 +24,17 @@ def capitalize_hashtag_words(text):
             new_words.append(word)
     return " ".join(new_words)
 
+def remove_hashtag(text):
+    words = text.split()
+    new_words = []
+    for word in words:
+        if word.startswith("#"):
+            new_words.append(word[1:])
+        else:
+            new_words.append(word)
+    return " ".join(new_words)
+
+
 
 def extract_ner_names(text, ner_results, only_locations=True, merge_locations=False) -> List[str]:
     # ner_results = [{'entity_group': '*-LOC', 'score': 0.6138262, 'word': 'NDMA', 'start': 62, 'end': 66},..]
