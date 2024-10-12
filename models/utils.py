@@ -119,7 +119,6 @@ def preprocess_text(text) -> list[str]:
 
 
 def capitalize_known_words(text):
-    # todo
     known_words = load_labeled_test_data()['location_true'].unique()
     # text_words = word_tokenize(text)
     text_words = text.split(' ')
