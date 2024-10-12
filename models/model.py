@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
-from models.utils import capitalize_hashtag_words, extract_ner_names
+from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -38,8 +38,9 @@ class NERPipeline:
         locations_list = extract_ner_names(text, ner_results, only_locations=True,
                                            location_as_multiple_words=self.config.get('location_as_multiple_words'))
         locations_list = sorted(set(locations_list))
+        if self.config.get('fix_locations'):
+            locations_list = fix_locations(locations_list, text)
         return locations_list
-        # return fix_locations(locations_list, text)
 
 
 if __name__ == "__main__":

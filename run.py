@@ -18,6 +18,7 @@ if __name__ == "__main__":
                         help="model_name for NER Transformer")
     parser.add_argument("--capitalize_hashtag", dest='capitalize_hashtag', default=False, action='store_true')
     parser.add_argument("--location_as_multiple_words", dest='location_as_multiple_words', default=False, action='store_true')
+    parser.add_argument("--fix_locations", dest='fix_locations', default=False, action='store_true')
 
     args = parser.parse_args()
     model_config = vars(parser.parse_args())
