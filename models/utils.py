@@ -36,7 +36,7 @@ def remove_hashtag(text):
 
 
 
-def extract_ner_names(text, ner_results, only_locations=True, merge_locations=False) -> List[str]:
+def extract_ner_names(text, ner_results, only_locations=False, merge_locations=False) -> List[str]:
     # ner_results = [{'entity_group': '*-LOC', 'score': 0.6138262, 'word': 'NDMA', 'start': 62, 'end': 66},..]
 
     # Create a list to hold the extracted words

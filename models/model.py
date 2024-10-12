@@ -55,7 +55,8 @@ class NERPipeline:
         return text
 
     def postprocess(self, text, ner_results, retry_on_fail=True):
-        locations_list = extract_ner_names(text, ner_results, only_locations=True,
+        locations_list = extract_ner_names(text, ner_results,
+                                           only_locations=False,
                                            merge_locations=self.config.get('merge_locations'))
         if not locations_list and retry_on_fail:
             text = text.replace('-', ' ').replace('/', ' ')
