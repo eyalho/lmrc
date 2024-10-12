@@ -44,10 +44,10 @@ def extract_ner_names(text, ner_results, only_locations=False, merge_locations=F
     # So it catch the right form (capitalized or not) of the word
     extracted_words = []
 
-    if only_locations:
-        ner_results = [r for r in ner_results if 'LOC' in r['entity_group']]
-    else:
-        pass
+    # if only_locations:
+    #     ner_results = [r for r in ner_results if 'LOC' in r['entity_group']]
+    # else:
+    #     pass
         # print(f"{ner_results=}")
     # sort ner_results by start index
     ner_results = sorted(ner_results, key=lambda x: x['start'])
@@ -57,8 +57,8 @@ def extract_ner_names(text, ner_results, only_locations=False, merge_locations=F
         start = result['start']
         end = result['end']
         if merge_locations:
-            if i < len(ner_results) - 1:
-                if end + 1 == ner_results[i + 1]['start']:
+            if i < len(ner_results) - 1 and result['']:
+                if end + 1 == ner_results[i + 1]['start'] and result['entity'] not in ['L-LOC', 'U-LOC']:
                     ner_results[i + 1]['start'] = start
                     continue
         extracted_words.append(text[start:end])

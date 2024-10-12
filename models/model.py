@@ -22,7 +22,7 @@ class NERPipeline:
         model_name = config["model_name"]
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForTokenClassification.from_pretrained(model_name).to(device)
-        self.Aggregation_strategy = "average"  # "average"?
+        self.Aggregation_strategy = None # "average"  # "average"?
         self.ner_pipeline = pipeline("ner",
                                      model=self.model,
                                      tokenizer=self.tokenizer,
