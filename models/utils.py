@@ -45,7 +45,7 @@ def extract_ner_names(text, ner_results, only_locations=True, merge_locations=Fa
         end = result['end']
         if merge_locations:
             if i < len(ner_results) - 1:
-                if end + 2 == ner_results[i + 1]['start']:
+                if end + 1 == ner_results[i + 1]['start']:
                     ner_results[i + 1]['start'] = start
                     continue
         extracted_words.append(text[start:end])
