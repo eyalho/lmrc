@@ -44,6 +44,9 @@ class NERPipeline:
 
     def preprocess(self, text):
         text = re.sub(r"\b([A-Z][a-zA-Z]*)'s\b", r"\1", text)
+        text = re.sub(r"\b([A-Z][a-zA-Z]*)’s\b", r"\1", text)
+        text = re.sub(r"\b([A-Z][a-zA-Z]*)-\b", r"\1 ", text)
+
         if self.config.get('capitalize_hashtag'):
             text = capitalize_hashtag_words(text)
 
@@ -52,8 +55,6 @@ class NERPipeline:
         return text
 
     def postprocess(self, text, ner_results, retry_on_fail=True):
-        text = re.sub(r"\b([A-Z][a-zA-Z]*)'s\b", r"\1", text)
-
         locations_list = extract_ner_names(text, ner_results, only_locations=True,
                                            merge_locations=self.config.get('merge_locations'))
         if not locations_list and retry_on_fail:
@@ -73,10 +74,9 @@ class NERPipeline:
         return locations_list
 
     def predict(self, text):
-        original_text = text
         process_text = self.preprocess(text)
         ner_results = self.ner_pipeline(process_text)
-        return self.postprocess(text, ner_results)
+        return self.postprocess(process_text, ner_results)
 
 
 if __name__ == "__main__":
