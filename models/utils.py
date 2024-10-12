@@ -35,7 +35,8 @@ def extract_ner_names(text, ner_results, only_locations=True, merge_locations=Fa
 
     if only_locations:
         ner_results = [r for r in ner_results if 'LOC' in r['entity_group']]
-
+    else:
+        print(f"{ner_results=}")
     # sort ner_results by start index
     ner_results = sorted(ner_results, key=lambda x: x['start'])
 
@@ -50,8 +51,7 @@ def extract_ner_names(text, ner_results, only_locations=True, merge_locations=Fa
                     continue
         extracted_words.append(text[start:end])
 
-    if not only_locations:
-        print(f"{ner_results=}")
+
     return extracted_words
 
 

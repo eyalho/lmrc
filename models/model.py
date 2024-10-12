@@ -27,11 +27,18 @@ class NERPipeline:
                                      tokenizer=self.tokenizer,
                                      aggregation_strategy=self.Aggregation_strategy,
                                      device=device)
-        # self.post_blacklist_names = load_post_blacklist_names()
 
-    def preprocess_on_second_try(self, text):
-        text = text.replace('-', ' ').replace('/', ' ')
-        return text
+        retry_model_name ='dslim/bert-base-NER'
+        self.tokenizer2 = AutoTokenizer.from_pretrained(retry_model_name)
+        self.model2 = AutoModelForTokenClassification.from_pretrained(retry_model_name).to(device)
+        self.Aggregation_strategy2 = "average"  # "average"?
+        self.ner_pipeline2 = pipeline("ner",
+                                     model=self.model2,
+                                     tokenizer=self.tokenizer2,
+                                     aggregation_strategy=self.Aggregation_strategy2,
+                                     device=device)
+
+        # self.post_blacklist_names = load_post_blacklist_names()
 
     def preprocess(self, text):
 
@@ -42,10 +49,12 @@ class NERPipeline:
             text = capitalize_known_words(text)
         return text
 
-    def postprocess(self, text, ner_results):
+    def postprocess(self, text, ner_results, retry_on_fail=True):
         locations_list = extract_ner_names(text, ner_results, only_locations=True,
                                            merge_locations=self.config.get('merge_locations'))
-        if not locations_list:
+        if not locations_list and retry_on_fail:
+            # text = text.replace('-', ' ').replace('/', ' ')
+            ner_results = self.ner_pipeline2(text)
             print(f"no_locations_found: {text}")
             locations_list = extract_ner_names(text, ner_results, only_locations=False,
                                                merge_locations=self.config.get('merge_locations'))
