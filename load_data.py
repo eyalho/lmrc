@@ -34,7 +34,6 @@ def load_labeled_test_data():
 def create_a_submission_file(data, predict_func, save_path, exp=None):
     print(f"shape of test_data: {data.shape}")
 
-    data['location'] = data['text'].apply(lambda x: predict_func(x))
     data['location'] = data['text'].apply(lambda x: predict_func(x), tqdm.pandas())
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     data = data[["tweet_id", "location"]]
