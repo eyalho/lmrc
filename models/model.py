@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
-from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations
+from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations, capitalize_known_words
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -31,6 +31,9 @@ class NERPipeline:
     def preprocess(self, text):
         if self.config.get('capitalize_hashtag'):
             text = capitalize_hashtag_words(text)
+
+        if self.config.get('capitalize_known_words'):
+            text = capitalize_known_words(text)
         return text
 
     def predict(self, text):

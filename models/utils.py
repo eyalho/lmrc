@@ -5,6 +5,8 @@ import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
+from load_data import load_labeled_test_data
+
 nltk.data.path.append('/usr/share/nltk_data/')
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -52,17 +54,19 @@ def extract_ner_names(text, ner_results, only_locations=True, location_as_multip
     return extracted_words
 
 
-def filter_locations_by_word(locations_list: List[str], text: str):
-    # # todo fix
-    # extract_ner_words(text, extract_predefined_locations(text))=['England', 'Maryland', 'New Orleans']
-    # [Unknown], vs [New England New Orleans]
-    text_words = preprocess_text(text)
-    locations_list = [location for location in locations_list if location.split(' ')[0] in text_words]
+def filter_locations_by_words_without_special_chars_and_stop_words(locations_list: List[str], text: str):
+    text = re.sub(r'[^a-zA-Z0-9\s\./\-_]', '', text)
+    words = word_tokenize(text)
+    stop_words = set(stopwords.words('english'))
+    words = [word for word in words if word not in stop_words]
+    words_without_special_chars_and_stop_words = words
+    locations_list = [location for location in locations_list if
+                      location.split(' ')[0] in words_without_special_chars_and_stop_words]
     return locations_list
 
 
 def fix_locations(locations_list: List[str], text: str):
-    locations_list = filter_locations_by_word(locations_list, text)
+    locations_list = filter_locations_by_words_without_special_chars_and_stop_words(locations_list, text)
 
     sublocations_list = ['New', 'new', 'Ellicott']
     for location in locations_list:
@@ -100,6 +104,17 @@ def preprocess_text(text) -> list[str]:
     #     lemmatizer = WordNetLemmatizer()
     #     tokens = [lemmatizer.lemmatize(token) for token in tokens]
     return words
+
+
+def capitalize_known_words(text):
+    # todo
+    known_words = load_labeled_test_data()['location_true'].unique()
+    # text_words = word_tokenize(text)
+    text_words = text.split(' ')
+    for i, word in enumerate(text_words):
+        if word in known_words:
+            text_words[i] = word.capitalize()
+    return " ".join(text_words)
 
 
 if __name__ == "__main__":
