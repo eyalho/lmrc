@@ -41,7 +41,7 @@ class NERPipeline:
         # self.post_blacklist_names = load_post_blacklist_names()
 
     def preprocess(self, text):
-
+        text = re.sub(r"\b([A-Z][a-zA-Z]*)'s\b", r"\1", text)
         if self.config.get('capitalize_hashtag'):
             text = capitalize_hashtag_words(text)
 
