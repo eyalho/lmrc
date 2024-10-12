@@ -58,6 +58,7 @@ class NERPipeline:
             # text = text.replace('-', ' ').replace('/', ' ')
             locations_list = predefined_locations_predict(text, threshold=0)
             print(locations_list)
+            return locations_list
             # return locations_list
             # ner_results = self.ner_pipeline2(text)
             # locations_list = extract_ner_names(text, ner_results, only_locations=True,
