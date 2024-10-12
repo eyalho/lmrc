@@ -7,19 +7,27 @@ from load_data import load_official, load_labeled_test_data, load_and_evaluate_a
 from models.model import NERPipeline
 from models.predefined_words import predefined_locations_predict
 
+model_config = {}
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the experiment")
     parser.add_argument("--name", type=str, required=True, help="Experiment name")
     parser.add_argument("--disable", dest='disable', default=False, action='store_true')
     parser.add_argument("--eval_path", type=str, required=False, help="Experiment name")
+    parser.add_argument("--model_name", type=str, default='rsuwaileh/IDRISI-LMR-EN-random-typeless', required=False,
+                        help="model_name for NER Transformer")
+    parser.add_argument("--capitalize_hashtag", dest='capitalize_hashtag', default=False, action='store_true')
+    parser.add_argument("--location_as_multiple_words", dest='location_as_multiple_words', default=False, action='store_true')
 
     args = parser.parse_args()
+    model_config = vars(parser.parse_args())
 
-    exp_name = args.name
-    disabled = args.disable
-    eval_submission_file_path = args.eval_path
-    print(f"{exp_name=}")
+    exp_name = model_config.pop('name')
+    disabled = model_config.pop('disable')
+    eval_submission_file_path = model_config.pop('eval_path')
+    print(f"{args.name=}")
     print(f"{disabled=}")
+    print(f"{model_config=}")
 
     if disabled:
         print(f"comet_ml is disabled")
@@ -31,6 +39,7 @@ if __name__ == "__main__":
                               disabled=disabled)
     exp.set_name(exp_name)
     exp_name = exp.get_name()
+    exp.log_parameters(model_config)
 
     if eval_submission_file_path:
         # Only evaluate the submission file
@@ -54,7 +63,7 @@ if __name__ == "__main__":
 
 
     ### Evaluate the predictor
-    ner = NERPipeline()
+    ner = NERPipeline(config=model_config)
     ### Create a submission file (and enhanced file with true locations)
     submission_file_path = f'out/{exp_name}_submission.csv'
     create_a_submission_file(official_test_data, ner.predict, submission_file_path, exp)

@@ -1,10 +1,8 @@
-from functools import lru_cache
-
 import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
-from models.utils import capitalize_hashtag_words, extract_ner_names, fix_locations
+from models.utils import capitalize_hashtag_words, extract_ner_names
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -18,7 +16,9 @@ else:
 
 
 class NERPipeline:
-    def __init__(self, model_name="rsuwaileh/IDRISI-LMR-EN-random-typeless"):
+    def __init__(self, config: dict):
+        self.config = config  # contains model_name and other hyperparameters
+        model_name = config["model_name"]
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForTokenClassification.from_pretrained(model_name).to(device)
         self.Aggregation_strategy = "average"  # "average"?
@@ -28,11 +28,18 @@ class NERPipeline:
                                      aggregation_strategy=self.Aggregation_strategy,
                                      device=device)
 
+    def preprocess(self, text):
+        if self.config.get('capitalize_hashtag'):
+            text = capitalize_hashtag_words(text)
+        return text
+
     def predict(self, text):
         ner_results = self.ner_pipeline(text)
-        locations_list = extract_ner_names(text, ner_results)
+        locations_list = extract_ner_names(text, ner_results, only_locations=True,
+                                           location_as_multiple_words=self.config.get('location_as_multiple_words'))
         locations_list = sorted(set(locations_list))
-        return fix_locations(locations_list, text)
+        return locations_list
+        # return fix_locations(locations_list, text)
 
 
 if __name__ == "__main__":
